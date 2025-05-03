@@ -1,1 +1,14 @@
-export class User {}
+import { Book } from '../../books/entities/books.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @OneToMany(() => Book, (book) => book.user)
+  books: Book[];
+}

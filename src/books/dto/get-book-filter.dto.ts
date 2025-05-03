@@ -8,7 +8,7 @@ export class GetBookFilterDto {
 
   @IsString()
   @IsOptional()
-  author?: string;
+  user?: string;
 
   @IsDateString()
   @IsOptional()
