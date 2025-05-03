@@ -5,9 +5,11 @@ import { StudentsModule } from './students/students.module';
 import { ClassesModule } from './classes/classes.module';
 import { EmailModule } from './email/email.module';
 import { ConfigService } from './common/config.service';
+import { UsersModule } from './users/users.module';
+import { BooksModule } from './books/books.module';
 
 @Module({
-  imports: [StudentsModule, ClassesModule, EmailModule],
+  imports: [StudentsModule, ClassesModule, EmailModule, UsersModule, BooksModule],
   controllers: [AppController],
   providers: [AppService, ConfigService],
   exports: [ConfigService],
