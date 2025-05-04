@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,14 +18,22 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { GetBookFilterDto } from './dto/get-book-filter.dto';
 import { LanguageValidationPipe } from '../common/pipes/language-validation/language-validation.pipe';
+import { AuthGuard } from '../users/guards/auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { userInfo } from 'os';
 
 // @UsePipes(new ValidationPipe())
+@UseGuards(AuthGuard)
 @Controller('books')
 export class BooksController {
   constructor(private readonly bookService: BooksService) {}
 
   @Get()
-  findAll(@Query() filterDto: GetBookFilterDto) {
+  findAll(
+    @Query() filterDto: GetBookFilterDto,
+    @CurrentUser('email') userInfo,
+  ) {
+    console.log(userInfo);
     return this.bookService.findBooks(filterDto);
   }
 

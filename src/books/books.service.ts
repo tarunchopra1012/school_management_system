@@ -6,16 +6,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book } from './entities/books.entity';
 import PostgreSQLErrorCode from '../common/postgresql-error-codes';
-//import { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BooksService {
   constructor(
     @InjectRepository(Book)
     private bookRepository: Repository<Book>,
-    // configService: ConfigService,
+    configService: ConfigService,
   ) {
-    // console.log(configService.get('DB_PASSWORD'), '====> LOAD MY_SECRET');
+    console.log(configService.get('DB_PASSWORD'), '====> LOAD MY_SECRET');
   }
 
   async findBooks(filterDto: GetBookFilterDto) {

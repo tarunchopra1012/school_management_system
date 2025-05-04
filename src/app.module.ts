@@ -11,27 +11,35 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Book } from './books/entities/books.entity';
 import { User } from './users/entities/user.entity';
 import { DbConfigService } from './common/config-db.service';
-import { CommonModule } from './common/common.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as Joi from 'joi';
 
 @Module({
   imports: [
-    CommonModule,
+    ConfigModule.forRoot({
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('dev', 'prod', 'test').default('dev'),
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.number().required().default(5433),
+        DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_DATABASE: Joi.string().required(),
+      }),
+    }),
     TypeOrmModule.forRootAsync({
-      imports: [CommonModule],
-      inject: [DbConfigService],
-      useFactory: (configService: DbConfigService) => {
-        const dbConfig = configService.getDatabaseConfig();
-        return {
-          type: 'postgres',
-          host: dbConfig.host,
-          port: dbConfig.port,
-          username: dbConfig.username,
-          password: dbConfig.password,
-          database: dbConfig.database,
-          entities: [Book, User],
-          synchronize: true,
-        };
-      },
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        entities: [Book, User],
+        synchronize: true,
+      }),
     }),
     StudentsModule,
     ClassesModule,
