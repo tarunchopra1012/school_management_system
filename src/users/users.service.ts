@@ -67,6 +67,7 @@ export class UsersService {
     const payload = {
       id: user.id,
       email: signInDto.email,
+      role: user.role,
     };
     const accessToken = await this.jwtService.signAsync(payload);
 

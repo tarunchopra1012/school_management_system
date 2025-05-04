@@ -5,8 +5,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { Role } from '../entities/user.entity';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -14,9 +16,19 @@ export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
+    private reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const classRoles = this.reflector.get<Role[]>('roles', context.getClass());
+    const methodRoles = this.reflector.get<Role[]>(
+      'roles',
+      context.getHandler(),
+    );
+
+    console.log('Class Roles:', classRoles);
+    console.log('Method Roles:', methodRoles);
+
     // Retrieving the request object from the execution context
     const request: Request = context.switchToHttp().getRequest();
 

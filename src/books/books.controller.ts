@@ -1,62 +1,58 @@
 import {
   Body,
   Controller,
+  Req,
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
-  Req,
+  ParseIntPipe,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
-import { GetBookFilterDto } from './dto/get-book-filter.dto';
-import { LanguageValidationPipe } from '../common/pipes/language-validation/language-validation.pipe';
+import { CreateBookDto } from 'src/books/dto/create-book.dto';
+import { UpdateBookDto } from 'src/books/dto/update-book.dto';
+import { GetBookFilterDto } from 'src/books/dto/get-book-filter.dto';
 import { AuthGuard } from '../users/guards/auth.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { userInfo } from 'os';
+import { AccessControlGuard } from '../common/guards/access-control.guard';
+import { Roles } from '../common/decorators/role.decorator';
+import { Role } from '../users/entities/user.entity';
 
-// @UsePipes(new ValidationPipe())
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AccessControlGuard)
 @Controller('books')
 export class BooksController {
   constructor(private readonly bookService: BooksService) {}
 
   @Get()
-  findAll(
-    @Query() filterDto: GetBookFilterDto,
-    @CurrentUser('email') userInfo,
-  ) {
-    console.log(userInfo);
+  @Roles(Role.Admin, Role.Viewer)
+  findAll(@Query() filterDto: GetBookFilterDto) {
     return this.bookService.findBooks(filterDto);
   }
 
   @Post()
-  // @UsePipes(new ValidationPipe())
-  @UsePipes(LanguageValidationPipe)
+  @Roles(Role.Admin)
   create(@Body() body: CreateBookDto) {
     return this.bookService.createBook(body);
   }
 
   @Get(':id')
+  @Roles(Role.Admin, Role.Viewer)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.bookService.findBookById(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateBookDto) {
-    const book = this.bookService.updateBook(id, body);
+  @Roles(Role.Admin)
+  update(@Param('id') id: number, @Body() body: UpdateBookDto) {
+    const book = this.bookService.updateBook(+id, body);
     return book;
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: string) {
+  @Roles(Role.Admin)
+  delete(@Param('id') id: string) {
     return this.bookService.deleteBook(+id);
   }
 }
