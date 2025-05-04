@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 
 @Injectable()
-export class ConfigService {
+export class DbConfigService {
   // Fix the type to match process.env
   private readonly envConfig: { [key: string]: string | undefined };
 
@@ -11,8 +11,10 @@ export class ConfigService {
     console.log('ConfigService instantiated!');
     // Load environment variables once when the service is created
     const envFile = process.env.NODE_ENV
-      ? `.env.${process.env.NODE_ENV}`
+      ? `.${process.env.NODE_ENV}.env`
       : '.env';
+
+    console.log(envFile);
     const envFileExists = fs.existsSync(envFile);
 
     if (envFileExists) {
