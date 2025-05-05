@@ -41,7 +41,7 @@ export class UsersService {
       const { password, ...result } = savedUser;
       return result;
     } catch (error) {
-      console.log(error.code);
+      console.log(error);
       if (error.code === PostgreSQLErrorCode.UniqueViolation) {
         throw new ConflictException('Email already in use.');
       }
