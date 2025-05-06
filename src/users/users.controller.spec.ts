@@ -1,42 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
-import { JwtService } from '@nestjs/jwt';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { DataSource } from 'typeorm';
+import { AppModule } from '../app.module';
 
-let mockJwtService = {
-  signAsync: jest.fn(),
-};
-let mockRepository = {
-  create: jest.fn(),
-  save: jest.fn(),
-  findOneBy: jest.fn(),
-};
+describe('AuthController (e2e)', () => {
+  let app: INestApplication;
 
-describe('UsersController', () => {
-  let controller: UsersController;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [UsersController],
-      providers: [
-        UsersService,
-        {
-          provide: JwtService,
-          useValue: mockJwtService,
-        },
-        {
-          provide: getRepositoryToken(User),
-          useValue: mockRepository,
-        },
-      ],
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
     }).compile();
 
-    controller = module.get<UsersController>(UsersController);
+    app = moduleFixture.createNestApplication();
+    await app.init();
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  afterAll(async () => {
+    const dataSource = app.get(DataSource);
+    await dataSource.dropDatabase();
+    app.close();
   });
 });
